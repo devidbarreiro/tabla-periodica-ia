@@ -211,16 +211,12 @@ function drawSeriesLabels(ctx, alpha) {
   ctx.restore();
 }
 
-function gradientText(ctx, text, x, y, size, align = "center") {
+const ACCENT = "#4dabf7";
+
+function accentText(ctx, text, x, y, size, align = "center") {
   ctx.font = `${size}px "Grotesk Bold"`;
   ctx.textAlign = align;
-  const w = ctx.measureText(text).width;
-  const x0 = align === "center" ? x - w / 2 : x;
-  const grad = ctx.createLinearGradient(x0, 0, x0 + w, 0);
-  ["#ff6b6b", "#ffd43b", "#38d9a9", "#4dabf7", "#b197fc", "#f783ac"].forEach((c, i, arr) =>
-    grad.addColorStop(i / (arr.length - 1), c)
-  );
-  ctx.fillStyle = grad;
+  ctx.fillStyle = ACCENT;
   ctx.fillText(text, x, y);
 }
 
@@ -247,7 +243,7 @@ function centerText(ctx, text, y, size, beat, at, opts = {}) {
   ctx.translate(W / 2, y);
   ctx.scale(scale, scale);
   ctx.textBaseline = "middle";
-  if (opts.gradient) gradientText(ctx, text, 0, 0, size);
+  if (opts.accent) accentText(ctx, text, 0, 0, size);
   else {
     ctx.font = `${size}px "${opts.font ?? "Grotesk Bold"}"`;
     ctx.textAlign = "center";
@@ -263,7 +259,7 @@ function sceneHook(ctx, beat) {
   if (textFade > 0) {
     const lift = easeInOut(clamp((beat - 2) / 0.5)) * 70;
     centerText(ctx, "120 términos de IA.", H / 2 - lift, 140, beat, 0, { alpha: textFade });
-    centerText(ctx, "¿Cuántos conoces de verdad?", H / 2 + 90, 86, beat, 2, { gradient: true, alpha: textFade });
+    centerText(ctx, "¿Cuántos conoces de verdad?", H / 2 + 90, 86, beat, 2, { accent: true, alpha: textFade });
   }
   if (beat < 4) return;
   const idx = Math.min(FLICKER.length - 1, Math.floor((beat - 4) * 2));
@@ -318,7 +314,7 @@ function drawGapTitle(ctx, beat) {
     ctx.textAlign = "left";
     ctx.fillStyle = "#eef1f8";
     ctx.fillText(head, startX, 0);
-    gradientText(ctx, "de la IA", startX + headW, 0, size, "left");
+    accentText(ctx, "de la IA", startX + headW, 0, size, "left");
     ctx.font = `24px "Mono"`;
     ctx.textAlign = "center";
     ctx.fillStyle = "#8a93a8";
@@ -334,7 +330,7 @@ function centerTextAt(ctx, text, x, y, size, beat, at) {
   ctx.translate(x, y);
   ctx.scale(scale, scale);
   ctx.textBaseline = "middle";
-  gradientText(ctx, text, 0, 0, size);
+  accentText(ctx, text, 0, 0, size);
   ctx.restore();
 }
 
@@ -441,7 +437,7 @@ function sceneOutro(ctx, beat) {
     ctx.restore();
   }
   centerText(ctx, `Actualizada a ${UPDATED}`, H / 2 + 130, 36, beat, 55, { font: "Grotesk", color: "#8a93a8" });
-  centerText(ctx, "Guárdala. Compártela.", H / 2 + 240, 64, beat, 56, { gradient: true });
+  centerText(ctx, "Guárdala. Compártela.", H / 2 + 240, 64, beat, 56, { accent: true });
 }
 
 function drawFlash(ctx, beat) {
