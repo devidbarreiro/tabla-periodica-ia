@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tabla Periódica de la IA</title>
+  <meta name="description" content="120 términos de inteligencia artificial organizados como la tabla periódica: de backpropagation a MCP, Agent Skills y GPT-6. Actualizada a septiembre de 2026." />
+  <meta property="og:title" content="Tabla Periódica de la IA" />
+  <meta property="og:description" content="120 términos de IA organizados como la tabla periódica. Actualizada a septiembre de 2026." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://devidbarreiro.github.io/tabla-periodica-ia/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23ff6b6b'/><text x='32' y='44' font-family='Arial' font-weight='700' font-size='30' text-anchor='middle' fill='%230b0d14'>Ia</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Tabla Periódica <span>de la IA</span></h1>
+      <p class="sub"><strong id="count">120</strong> términos · actualizada a <span id="updated"></span></p>
+    </div>
+    <div class="tools">
+      <label class="search">
+        <span class="sr-only">Buscar término</span>
+        <input id="q" type="search" placeholder="Buscar: rag, agentes, 2025…" autocomplete="off" />
+      </label>
+      <div class="known" title="Marca los términos que ya dominas">
+        Conoces <strong id="known">0</strong>/<span id="total">120</span>
+        <div class="bar"><i id="knownBar"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="legend" id="legend" aria-label="Categorías"></nav>
+
+  <main>
+    <div class="table" id="table" role="grid" aria-label="Tabla periódica de términos de IA">
+      <section class="preview" id="preview" aria-live="polite"></section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p>Pasa el ratón por un elemento o haz clic para fijarlo. <kbd>←</kbd><kbd>→</kbd> para navegar, <kbd>Esc</kbd> para soltar. <span class="hot-key">★</span> = novedad 2025–2026.</p>
+    <p>Hecho por David Barreiro · <a href="https://github.com/devidbarreiro/tabla-periodica-ia" rel="noopener">código en GitHub</a> · ¿Falta algo? Abre un issue.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

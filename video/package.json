@@ -1,0 +1,7 @@
+{
+  "name": "tabla-periodica-ia-video",
+  "private": true,
+  "type": "module",
+  "scripts": { "render": "node render.mjs" },
+  "dependencies": { "@napi-rs/canvas": "^1.0.9" }
+}
