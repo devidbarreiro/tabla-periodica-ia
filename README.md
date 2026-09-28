@@ -22,11 +22,11 @@ Un punto verde marca las novedades de 2025–2026. Haz clic en un elemento para 
 
 - `data.js`: todos los términos y la regla que los coloca en la tabla. Es la única fuente de datos; la web y el vídeo la leen.
 - `index.html`, `styles.css`, `app.js`: web estática, sin build ni dependencias.
-- `video/`: vídeo promocional 1920×1080 generado solo con código (canvas + música sintetizada + ffmpeg).
+- `video/`: vídeo promocional 1920×1080 de 40 s, sin sonido (pensado para LinkedIn), generado solo con código: canvas + ffmpeg.
 
 ```bash
 cd video && npm install && npm run render   # → video/out/promo.mp4
-node render.mjs --still 12 20.5              # fotogramas sueltos por beat
+node render.mjs --still 2.5 23               # fotogramas sueltos por segundo
 ```
 
 ## Contribuir
