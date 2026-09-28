@@ -7,18 +7,18 @@
   const UPDATED = "septiembre 2026";
 
   const CATEGORIES = [
-    { id: "fund", name: "Fundamentos", color: "#ff6b6b" },
-    { id: "arq", name: "Arquitecturas", color: "#ffa94d" },
-    { id: "train", name: "Entrenamiento", color: "#ffd43b" },
-    { id: "inf", name: "Inferencia", color: "#a9e34b" },
-    { id: "multi", name: "Multimodal", color: "#38d9a9" },
-    { id: "rag", name: "RAG y datos", color: "#3bc9db" },
-    { id: "prompt", name: "Prompting y razonamiento", color: "#4dabf7" },
-    { id: "eval", name: "Evaluación", color: "#748ffc" },
-    { id: "safety", name: "Seguridad y gobernanza", color: "#b197fc" },
-    { id: "frontier", name: "Horizonte", color: "#e599f7" },
-    { id: "models", name: "Modelos frontera", color: "#f783ac" },
-    { id: "agents", name: "Serie agéntica", color: "#63e6be" },
+    { id: "fund", name: "Fundamentos", color: "#e28e87" },
+    { id: "arq", name: "Arquitecturas", color: "#e5a570" },
+    { id: "train", name: "Entrenamiento", color: "#d8bf6a" },
+    { id: "inf", name: "Inferencia", color: "#b0c46e" },
+    { id: "multi", name: "Multimodal", color: "#86c08c" },
+    { id: "rag", name: "RAG y datos", color: "#6fb3c9" },
+    { id: "prompt", name: "Prompting y razonamiento", color: "#86a9e0" },
+    { id: "eval", name: "Evaluación", color: "#a3a2e0" },
+    { id: "safety", name: "Seguridad y gobernanza", color: "#b99bd2" },
+    { id: "frontier", name: "Horizonte", color: "#d19cc6" },
+    { id: "models", name: "Modelos frontera", color: "#dc94ae" },
+    { id: "agents", name: "Serie agéntica", color: "#6cc4b4" },
   ];
 
   // Celdas [fila, columna] de cada región, en el orden en que se rellenan.
@@ -43,7 +43,7 @@
   };
 
   // s: símbolo · n: nombre · y: año de origen (null si no aplica) · d: descripción
-  // hot: novedad 2025-2026 · latest: última versión conocida (modelos)
+  // hot: novedad 2025-2026 (punto de acento) · latest: última versión conocida (modelos)
   const TERMS = {
     fund: [
       { s: "Ia", n: "Inteligencia Artificial", y: 1956, d: "Campo que construye sistemas capaces de tareas que asociamos a la inteligencia humana: razonar, percibir, usar el lenguaje. El término nace en la conferencia de Dartmouth." },

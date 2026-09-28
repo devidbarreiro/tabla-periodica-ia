@@ -66,10 +66,10 @@
       const cat = catById[el.cat];
       const mobileOrder = cat.index * 1000 + el.num;
       return `<button class="el" role="gridcell" data-num="${el.num}"
-        style="--c:${cat.color};grid-row:${el.row};grid-column:${el.col};order:var(--o,0)"
+        style="--c:${cat.color};--i:${el.num};grid-row:${el.row};grid-column:${el.col};order:var(--o,0)"
         data-order="${mobileOrder}" aria-label="${escapeHtml(`${el.num} ${el.s} — ${el.n}`)}">
         <span class="num">${el.num}</span>
-        ${el.hot ? '<span class="star" aria-hidden="true">★</span>' : ""}
+        ${el.hot ? '<span class="new" aria-hidden="true"></span>' : ""}
         <span class="sym">${escapeHtml(el.s)}</span>
         <span class="name">${escapeHtml(el.n)}</span>
       </button>`;
@@ -87,6 +87,7 @@
 
   function renderPreview(el) {
     const cat = catById[el.cat];
+    preview.classList.remove("empty");
     const isKnown = state.known.has(el.s);
     const meta = [el.org, el.y].filter(Boolean).join(" · ");
     preview.style.setProperty("--c", cat.color);
@@ -98,28 +99,43 @@
         <span class="yr">${el.y ?? "—"}</span>
       </div>
       <div class="info">
-        <div class="cat" style="color:${cat.color}">${escapeHtml(cat.name)}${el.hot ? " · ★ novedad" : ""}</div>
+        <div class="cat">${escapeHtml(cat.name)}${el.hot ? ' <span class="tag">· novedad</span>' : ""}</div>
         <h2>${escapeHtml(el.n)}</h2>
-        ${meta && el.org ? `<div class="pin-hint">${escapeHtml(meta)}</div>` : ""}
+        ${el.org ? `<div class="meta">${escapeHtml(meta)}</div>` : ""}
         <p>${escapeHtml(el.d)}</p>
-        ${el.latest ? `<div class="latest" style="--c:${cat.color}">Última versión: <b>${escapeHtml(el.latest)}</b></div>` : ""}
+        ${el.latest ? `<div class="latest">Última versión: <b>${escapeHtml(el.latest)}</b></div>` : ""}
         <div class="actions">
           <button class="btn ${isKnown ? "on" : ""}" data-toggle-known="${escapeHtml(el.s)}">${isKnown ? "✓ Lo conozco" : "Lo conozco"}</button>
-          <span class="pin-hint">${state.pinned === el.num ? "Fijado · Esc para soltar" : "Clic para fijar"}</span>
+          <span class="hint">${state.pinned === el.num ? "Fijado · Esc para soltar" : "Clic para fijar"}</span>
         </div>
       </div>`;
   }
 
   function renderIntro() {
-    preview.style.removeProperty("--c");
+    preview.classList.remove("empty");
+    preview.style.setProperty("--c", catById.fund.color);
     preview.innerHTML = `
-      <div class="big" style="--c:#ff6b6b">
+      <div class="big" style="--c:${catById.fund.color}">
         <span class="num">1</span><span class="sym">Ia</span><span class="yr">1956</span>
       </div>
       <div class="info">
-        <div class="cat" style="color:#ff6b6b">Cómo leerla</div>
+        <div class="cat">Cómo leerla</div>
         <h2>${ELEMENTS.length} términos, 12 familias</h2>
         <p>Los fundamentos a la izquierda, arquitecturas y entrenamiento en el centro, seguridad y horizonte a la derecha. Abajo, como los lantánidos: los modelos frontera y la serie agéntica. Pasa el ratón por cualquier elemento.</p>
+      </div>`;
+  }
+
+  function renderEmpty(query) {
+    preview.classList.add("empty");
+    preview.style.removeProperty("--c");
+    preview.innerHTML = `
+      <button class="close" aria-label="Cerrar">×</button>
+      <div class="big"><span class="num">0</span><span class="sym">?</span><span class="yr">—</span></div>
+      <div class="info">
+        <div class="cat">Sin resultados</div>
+        <h2>Nada coincide con «${escapeHtml(query)}»</h2>
+        <p>Prueba con el nombre en inglés (fine-tuning, tool use), con una sigla (RAG, MCP) o con un año (2025). También puedes filtrar por familia con la leyenda.</p>
+        <div class="actions"><button class="btn" data-clear-search>Limpiar búsqueda</button></div>
       </div>`;
   }
 
@@ -165,6 +181,14 @@
       table.querySelector(`.el[data-num="${el.num}"]`).classList.toggle("match", isMatch);
     });
     $("count").textContent = isFiltering ? `${count}/${ELEMENTS.length}` : String(ELEMENTS.length);
+    const isEmpty = isFiltering && count === 0;
+    if (isEmpty) {
+      state.pinned = null;
+      renderEmpty(search.value.trim());
+      preview.classList.add("open");
+    } else if (preview.classList.contains("empty")) {
+      unpin();
+    }
   }
 
   function renderKnown() {
@@ -172,7 +196,7 @@
     const known = ELEMENTS.filter((el) => state.known.has(el.s)).length;
     $("known").textContent = known;
     $("total").textContent = total;
-    $("knownBar").style.width = `${(known / total) * 100}%`;
+    $("knownBar").style.transform = `scaleX(${known / total})`;
     ELEMENTS.forEach((el) => {
       table.querySelector(`.el[data-num="${el.num}"]`).classList.toggle("known", state.known.has(el.s));
     });
@@ -218,6 +242,12 @@
       const toggle = e.target.closest("[data-toggle-known]");
       if (toggle) toggleKnown(toggle.dataset.toggleKnown);
       if (e.target.closest(".close")) unpin();
+      if (e.target.closest("[data-clear-search]")) {
+        search.value = "";
+        state.query = "";
+        applyFilters();
+        search.focus();
+      }
     });
     search.addEventListener("input", () => {
       state.query = normalize(search.value.trim());

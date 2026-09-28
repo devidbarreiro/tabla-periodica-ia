@@ -16,7 +16,7 @@
 | Última columna | Horizonte (AGI, superinteligencia…) |
 | Abajo (f) | Modelos frontera · Serie agéntica |
 
-★ marca las novedades de 2025–2026. Haz clic en un elemento para fijarlo, usa `←` `→` para navegar, `/` para buscar y marca los que ya conoces (se guarda en tu navegador).
+Un punto verde marca las novedades de 2025–2026. Haz clic en un elemento para fijarlo, usa `←` `→` para navegar, `/` para buscar y marca los que ya conoces (se guarda en tu navegador).
 
 ## Estructura
 

@@ -21,9 +21,16 @@ const TOTAL_BEATS = 60;
 const URL_TEXT = "devidbarreiro.github.io/tabla-periodica-ia";
 const OUT = join(HERE, "out");
 
-GlobalFonts.registerFromPath(join(HERE, "fonts/space-grotesk-latin-700-normal.ttf"), "Grotesk Bold");
-GlobalFonts.registerFromPath(join(HERE, "fonts/space-grotesk-latin-500-normal.ttf"), "Grotesk");
-GlobalFonts.registerFromPath(join(HERE, "fonts/jetbrains-mono-latin-600-normal.ttf"), "Mono");
+// Misma paleta que la web: base zinc neutra y un único acento.
+const TEXT = "#ededef";
+const MUTED = "#8b8b94";
+const SURFACE = "#141417";
+const LINE = "#27272a";
+const ACCENT = "#3fcf8e";
+
+GlobalFonts.registerFromPath(join(HERE, "fonts/geist-sans-latin-700-normal.ttf"), "Grotesk Bold");
+GlobalFonts.registerFromPath(join(HERE, "fonts/geist-sans-latin-500-normal.ttf"), "Grotesk");
+GlobalFonts.registerFromPath(join(HERE, "fonts/geist-mono-latin-500-normal.ttf"), "Mono");
 
 const catById = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 const bySymbol = Object.fromEntries(ELEMENTS.map((e) => [e.s, e]));
@@ -107,9 +114,11 @@ function drawBackground(ctx, t, energy) {
       const vig = 1 - Math.hypot(u - 0.5, (v - 0.5) * 0.9) * 1.2;
       const lum = clamp(vig) * (0.55 + energy * 0.6);
       const i = (y * BG_W + x) * 4;
-      d[i] = 10 + lum * (40 * k + 30 * (1 - k));
-      d[i + 1] = 12 + lum * (18 * k + 38 * (1 - k));
-      d[i + 2] = 22 + lum * (70 * k + 60 * (1 - k));
+      const base = 12 + lum * 16 * k;
+      const tint = lum * 10 * (1 - k);
+      d[i] = base + tint * 0.25;
+      d[i + 1] = base + tint * 0.8;
+      d[i + 2] = base + 2 + tint * 0.55;
       d[i + 3] = 255;
     }
   }
@@ -125,14 +134,9 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.roundRect(x, y, w, h, r);
 }
 
-function star(ctx, cx, cy, r, color) {
+function dot(ctx, cx, cy, r, color) {
   ctx.beginPath();
-  for (let i = 0; i < 10; i++) {
-    const rad = i % 2 === 0 ? r : r * 0.45;
-    const ang = -Math.PI / 2 + (i * Math.PI) / 5;
-    ctx.lineTo(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad);
-  }
-  ctx.closePath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.fill();
 }
@@ -157,35 +161,38 @@ function drawTile(ctx, el, rect, opts = {}) {
   ctx.translate(x + w / 2, y + h / 2);
   ctx.scale(scale, scale);
   ctx.translate(-w / 2, -h / 2);
+  // Sombra teñida y corta, no un halo de neón.
   if (glow > 0) {
-    ctx.shadowColor = rgba(color, 0.9 * glow);
-    ctx.shadowBlur = 40 * glow * k;
+    ctx.shadowColor = rgba(color, 0.35 * glow);
+    ctx.shadowBlur = 22 * glow * k;
+    ctx.shadowOffsetY = 10 * glow * k;
   }
   roundRect(ctx, 0, 0, w, h, 8 * k);
-  const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, rgba(color, 0.3 + glow * 0.2));
-  grad.addColorStop(1, rgba(color, 0.08));
-  ctx.fillStyle = "#11141d";
+  ctx.fillStyle = SURFACE;
   ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.lineWidth = (1 + glow * 1.5) * k;
-  ctx.strokeStyle = rgba(color, 0.45 + glow * 0.55);
+  ctx.shadowColor = "transparent";
+  ctx.lineWidth = k;
+  ctx.strokeStyle = glow > 0 ? rgba(color, 0.35 + glow * 0.3) : LINE;
   ctx.stroke();
+  // Barra superior con el color de la familia, como en la web.
+  ctx.save();
+  ctx.clip();
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, w, 2 * k + glow * k);
+  ctx.restore();
 
-  ctx.fillStyle = "#8a93a8";
+  ctx.fillStyle = MUTED;
   ctx.font = `${11 * k}px "Mono"`;
   ctx.textBaseline = "top";
   ctx.fillText(String(el.num), 7 * k, 7 * k);
-  if (el.hot) star(ctx, w - 12 * k, 13 * k, 6 * k, "#ffd43b");
+  if (el.hot) dot(ctx, w - 11 * k, 11 * k, 3 * k, ACCENT);
 
   ctx.fillStyle = color;
   ctx.font = `${32 * k}px "Grotesk Bold"`;
   ctx.textBaseline = "middle";
   ctx.fillText(el.s, 7 * k, h * 0.5);
 
-  ctx.fillStyle = "rgba(238,241,248,0.85)";
+  ctx.fillStyle = MUTED;
   fitText(ctx, el.n, w - 12 * k, 11 * k, "Grotesk");
   ctx.textBaseline = "bottom";
   ctx.fillText(el.n, 7 * k, h - 7 * k);
@@ -200,7 +207,7 @@ function drawTable(ctx, beat, tileOpts) {
 function drawSeriesLabels(ctx, alpha) {
   ctx.save();
   ctx.globalAlpha = alpha * 0.8;
-  ctx.fillStyle = "#8a93a8";
+  ctx.fillStyle = MUTED;
   ctx.font = `15px "Mono"`;
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";
@@ -211,7 +218,6 @@ function drawSeriesLabels(ctx, alpha) {
   ctx.restore();
 }
 
-const ACCENT = "#4dabf7";
 
 function accentText(ctx, text, x, y, size, align = "center") {
   ctx.font = `${size}px "Grotesk Bold"`;
@@ -247,7 +253,7 @@ function centerText(ctx, text, y, size, beat, at, opts = {}) {
   else {
     ctx.font = `${size}px "${opts.font ?? "Grotesk Bold"}"`;
     ctx.textAlign = "center";
-    ctx.fillStyle = opts.color ?? "#eef1f8";
+    ctx.fillStyle = opts.color ?? TEXT;
     ctx.fillText(text, 0, 0);
   }
   ctx.restore();
@@ -271,7 +277,7 @@ function sceneHook(ctx, beat) {
   const rect = { x: W / 2 - size.w / 2 + shake, y: H / 2 - size.h / 2 - 20, ...size };
   drawTile(ctx, el, rect, { glow: 1 - local * 0.6, scale: lerp(1.08, 1, easeOut(local * 3)) });
   ctx.save();
-  ctx.fillStyle = "#eef1f8";
+  ctx.fillStyle = TEXT;
   ctx.font = `34px "Grotesk"`;
   ctx.textAlign = "center";
   ctx.fillText(catById[el.cat].name, W / 2, rect.y + rect.h + 60);
@@ -312,12 +318,13 @@ function drawGapTitle(ctx, beat) {
     const tailW = ctx.measureText("de la IA").width;
     const startX = -(headW + tailW) / 2;
     ctx.textAlign = "left";
-    ctx.fillStyle = "#eef1f8";
+    ctx.fillStyle = TEXT;
     ctx.fillText(head, startX, 0);
-    accentText(ctx, "de la IA", startX + headW, 0, size, "left");
+    ctx.fillStyle = MUTED;
+    ctx.fillText("de la IA", startX + headW, 0);
     ctx.font = `24px "Mono"`;
     ctx.textAlign = "center";
-    ctx.fillStyle = "#8a93a8";
+    ctx.fillStyle = MUTED;
     ctx.fillText(`120 términos · 12 familias · actualizada a ${UPDATED}`, 0, 76);
     ctx.restore();
   }
@@ -340,7 +347,7 @@ function sceneShowcase(ctx, beat) {
   const el = bySymbol[item.s];
   const local = (beat - 16 - idx * 2) / 2;
   drawTable(ctx, beat, (e) => (e.s === el.s ? { alpha: 1, glow: 1, scale: 1.12 } : { alpha: 0.16 }));
-  ctx.fillStyle = "rgba(8,10,16,0.62)";
+  ctx.fillStyle = "rgba(12,12,14,0.7)";
   ctx.fillRect(0, 0, W, H);
   // Resaltado en la tabla, visible a través del velo.
   drawTile(ctx, el, tileRect(el), { glow: 1, scale: 1.15 + pulseAt(beat) * 0.08 });
@@ -357,7 +364,7 @@ function drawShowcaseCard(ctx, el, item, local, beat, idx) {
 
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = "#8a93a8";
+  ctx.fillStyle = MUTED;
   ctx.font = `24px "Mono"`;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
@@ -371,13 +378,13 @@ function drawShowcaseCard(ctx, el, item, local, beat, idx) {
   ctx.fillStyle = color;
   ctx.font = `26px "Mono"`;
   ctx.fillText(catById[el.cat].name.toUpperCase(), tx, cardY + 40);
-  ctx.fillStyle = "#eef1f8";
+  ctx.fillStyle = TEXT;
   fitText(ctx, el.n, 1140, 96, "Grotesk Bold");
   ctx.fillText(el.n, tx, cardY + 135);
-  ctx.fillStyle = "#8a93a8";
+  ctx.fillStyle = MUTED;
   ctx.font = `28px "Mono"`;
   ctx.fillText([el.org, el.y].filter(Boolean).join(" · "), tx, cardY + 185);
-  ctx.fillStyle = "rgba(238,241,248,0.92)";
+  ctx.fillStyle = TEXT;
   ctx.font = `42px "Grotesk"`;
   wrapLines(ctx, item.c, 1140).forEach((line, i) => ctx.fillText(line, tx, cardY + 260 + i * 54));
   ctx.restore();
@@ -404,7 +411,7 @@ function sceneSweep(ctx, beat) {
   ctx.fillStyle = cat.color;
   fitText(ctx, cat.name, w - 40, 84, "Grotesk Bold");
   ctx.fillText(cat.name, 0, -18);
-  ctx.fillStyle = "#8a93a8";
+  ctx.fillStyle = MUTED;
   ctx.font = `26px "Mono"`;
   ctx.fillText(`${String(idx + 1).padStart(2, "0")}/12 · ${count} términos`, 0, 56);
   ctx.restore();
@@ -413,7 +420,7 @@ function sceneSweep(ctx, beat) {
 function sceneOutro(ctx, beat) {
   const fade = 1 - clamp((beat - 52) / 1);
   drawTable(ctx, beat, () => ({ alpha: 0.1 + 0.9 * fade * fade }));
-  ctx.fillStyle = `rgba(8,10,16,${0.55 * (1 - fade)})`;
+  ctx.fillStyle = `rgba(12,12,14,${0.6 * (1 - fade)})`;
   ctx.fillRect(0, 0, W, H);
   centerText(ctx, "Gratis. Open source.", H / 2 - 150, 110, beat, 52.5);
   if (beat >= 54) {
@@ -425,18 +432,18 @@ function sceneOutro(ctx, beat) {
     ctx.font = `46px "Mono"`;
     const tw = ctx.measureText(URL_TEXT).width;
     roundRect(ctx, -tw / 2 - 36, -46, tw + 72, 92, 46);
-    ctx.fillStyle = "rgba(77,171,247,0.14)";
+    ctx.fillStyle = rgba(ACCENT, 0.08);
     ctx.fill();
-    ctx.strokeStyle = "#4dabf7";
+    ctx.strokeStyle = ACCENT;
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = "#eef1f8";
+    ctx.fillStyle = TEXT;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(URL_TEXT, 0, 2);
     ctx.restore();
   }
-  centerText(ctx, `Actualizada a ${UPDATED}`, H / 2 + 130, 36, beat, 55, { font: "Grotesk", color: "#8a93a8" });
+  centerText(ctx, `Actualizada a ${UPDATED}`, H / 2 + 130, 36, beat, 55, { font: "Grotesk", color: MUTED });
   centerText(ctx, "Guárdala. Compártela.", H / 2 + 240, 64, beat, 56, { accent: true });
 }
 
@@ -453,7 +460,7 @@ function drawFlash(ctx, beat) {
 function drawEndFade(ctx, beat) {
   const a = clamp((beat - 58.5) / 1.5);
   if (a <= 0) return;
-  ctx.fillStyle = `rgba(0,0,0,${a})`;
+  ctx.fillStyle = `rgba(12,12,14,${a})`;
   ctx.fillRect(0, 0, W, H);
 }
 
